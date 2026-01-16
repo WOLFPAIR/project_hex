@@ -1,0 +1,11 @@
+.ytlogos {
+    width: 50px;
+    height: 50px;
+    align-self: end;
+    order: -1;
+
+}
+.ytlogos:hover {
+    transform: scale(1.2);
+    transition-duration: 0.3s;
+}
