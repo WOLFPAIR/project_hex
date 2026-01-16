@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+  height: 70px;
+  background-color: var(--primary-700);
+  border-bottom: 1px solid var(--border-primary);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header h1 {
+  font-size: 24px;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.header-left, .header-right {
+  display: flex;
+  align-items: center;
+  min-width: 100px;
+}
+
+.header-right {
+  justify-content: flex-end;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
