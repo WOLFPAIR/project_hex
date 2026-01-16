@@ -4,7 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Dashboard from './pages/dashboard/dashboard.tsx';
-import Sidebar from './pages/sidebar/sidebar.tsx';
+import Sidebar from './components/sidebar/sidebar.tsx';
 function App() {
   const [count, setCount] = useState(0)
 

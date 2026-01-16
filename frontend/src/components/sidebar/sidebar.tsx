@@ -1,13 +1,15 @@
 import './sidebar.css';
 import {useNavigate} from 'react-router-dom';
 import { FaHome } from 'react-icons/fa';
-import { SidebarButton } from '../../components/sidebar/button/button';
-import { UserIcon } from '../../components/sidebar/UserIcon/UserIcon';
+import { SidebarButton } from './button/button.tsx';
+import { UserIcon } from './UserIcon/UserIcon.tsx';
+import {Logo} from '../logo/logo.tsx'
 export default function Sidebar() {
     return (
         <div>
             <div className="sidebar">
                 <div className="sidebar-">
+                 <Logo/>
                  <SidebarButton icon={<FaHome />} label="Home" to="/dashboard" />
                  <SidebarButton icon={<FaHome />} label="Home" to="/dashboard" />
                  <SidebarButton icon={<FaHome />} label="Home" to="/dashboard" />

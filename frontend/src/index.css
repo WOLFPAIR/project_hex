@@ -1,4 +1,38 @@
 :root {
+  /* Colors - Primary Scale (Grayscale/Dark) */
+  --primary-100: #e0e0e0;
+  --primary-200: #b1b1b1;
+  --primary-300: #828282;
+  --primary-400: #535353;
+  --primary-500: #242222; /* Surfaces */
+  --primary-600: #1d1b1b; /* Cards/Modals */
+  --primary-700: #181616; /* Sidebar/Main background */
+  --primary-800: #141111; /* Buttons/Inputs */
+  --primary-900: #0a0909; /* Deepest black */
+
+  /* Semantic Colors */
+  --accent-blue: #3b82f6;
+  --accent-purple: #8b5cf6;
+  --success: #10b981;
+  --error: #ef4444;
+
+  /* Borders & Dividers */
+  --border-primary: #353434;
+  --border-secondary: #454444;
+
+  /* Text Colors */
+  --text-main: #ffffff;
+  --text-dim: #c9c9c9;
+  --text-muted: #828282;
+
+  /* Layout */
+  --sidebar-width: 300px;
+  --header-height: 64px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
