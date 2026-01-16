@@ -1,6 +1,8 @@
 .ytlogos {
     width: 50px;
     height: 50px;
+    align-self: end;
+    order: -1;
 
 }
 .ytlogos:hover {

@@ -1,0 +1,23 @@
+/* .button_for_h {
+    left: 0px;
+    top: 0px;
+    background-color: aliceblue;
+}
+.for_img_but {
+    height: 50px;
+    width: 75px;
+} */
+ .button_for_h {
+    /* position: absolute; */
+    background: transparent;
+     border: none; 
+    left: 0px;
+    top: 0px;
+}
+
+.for_img_but {
+    height: 50px;
+    width: 75px;
+    order: 2;
+
+}
