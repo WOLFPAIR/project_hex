@@ -1,0 +1,14 @@
+.header {                  /* выстроим элементы в одну линию */
+  display: flex;
+  justify-content: space-between;  /* заголовок слева, кнопка справа */
+  align-items: center;             /* выравнивание по вертикали */
+  padding: 10px 15px;              /* внутренние отступы */
+  border: 2px solid rgb(167, 148, 148);         /* рамка вокруг хедера */
+  background-color: #1d1b1bb9;       /* светлый фон */
+  width: 98%;
+  height: 70px;
+  
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
