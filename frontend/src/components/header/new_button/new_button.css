@@ -1,0 +1,17 @@
+.new_baton {
+    background-color: rgb(31, 30, 30);
+    color: white;
+    border: none;
+    height: 50px;
+    width: 70px;
+    border-radius: 8px;
+    font-size: 20px;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+}
+.new_baton:hover {
+    /* background-color: rgb(58, 57, 57); */
+    box-shadow: 0px 2px 10px rgb(255, 255, 255);
+}

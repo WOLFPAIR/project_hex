@@ -4,18 +4,94 @@
     background-color: var(--primary-700);
     border-radius: 10px;
     border: 1px solid var(--border-primary);
-    padding: 10px;
+    padding: 15px;
     margin: 10px;
     font-size: 16px;
     font-weight: 600;
     color: var(--text-main);
     transition: var(--transition-normal);
     position: relative;
-    /* box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.5); */
+    cursor: pointer;
 }
 
 .todo:hover {
-      box-shadow: 0 0 12px 0 rgba(255, 255, 255, 0.5);
-      transition-duration: 0.3s;
-      transform: scale(1.05)
+    box-shadow: 0 0 12px 0 rgba(255, 255, 255, 0.5);
+    transition-duration: 0.3s;
+    transform: scale(1.02);
+}
+
+/* Стили для завершенной задачи */
+.todo-completed {
+    background-color: rgba(76, 175, 80, 0.2);
+    border-color: rgba(76, 175, 80, 0.5);
+    opacity: 0.8;
+}
+
+/* Заголовок задачи */
+.todo-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.todo-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #4CAF50;
+    flex-shrink: 0;
+}
+
+.todo-checkbox-label {
+    cursor: pointer;
+    flex: 1;
+    margin: 0;
+}
+
+.todo h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.todo-title-completed {
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.todo p {
+    margin: 8px 0;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.todo-description-completed {
+    opacity: 0.6;
+}
+
+/* Статус задачи */
+.todo-status {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.status-completed {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
 }
