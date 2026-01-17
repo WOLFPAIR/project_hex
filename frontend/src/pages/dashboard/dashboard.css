@@ -1,28 +1,28 @@
-.header {                  /* выстроим элементы в одну линию */
-            /* выравнивание по вертикали */
-  padding: 10px 15px;              /* внутренние отступы */
-  border: 2px solid rgb(167, 148, 148);         /* рамка вокруг хедера */
-  background-color: #1d1b1bb9;       /* светлый фон */
-  width: 98%;
-  height: 70px;
+.dashboard-layout {
   display: flex;
-  justify-content: space-between;
-  
-  position: absolute;
-  top: 0px;
-  left: 0px;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--primary-900);
 }
-/* .left_header{
-  width: 50%;
-  height: 100%;
-    display: flex;
-  justify-content: space-between;  /* заголовок слева, кнопка справа */
-  /* align-items: center; 
+
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: var(--sidebar-width);
+  min-width: 0;
 }
-.left_header{
-  width: 50%;
-  height: 100%;
-    display: flex;
-  justify-content: space-between;  /* заголовок слева, кнопка справа */
-  align-items/*: &center; 
-} */
+
+.dashboard-content {
+  padding: 24px;
+  flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.todo-list {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
