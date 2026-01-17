@@ -11,4 +11,11 @@
     color: var(--text-main);
     transition: var(--transition-normal);
     position: relative;
+    /* box-shadow: 0 0 10px 0 rgba(255, 255, 255, 0.5); */
+}
+
+.todo:hover {
+      box-shadow: 0 0 12px 0 rgba(255, 255, 255, 0.5);
+      transition-duration: 0.3s;
+      transform: scale(1.05)
 }
