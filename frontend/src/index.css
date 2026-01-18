@@ -9,6 +9,7 @@
   --primary-700: #181616; /* Sidebar/Main background */
   --primary-800: #141111; /* Buttons/Inputs */
   --primary-900: #0a0909; /* Deepest black */
+  --login-background: rgba(20, 19, 19, 0.295);
 
   /* Semantic Colors */
   --accent-blue: #3b82f6;
