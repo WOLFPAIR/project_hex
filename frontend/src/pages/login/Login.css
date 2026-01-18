@@ -1,0 +1,113 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    
+    background: linear-gradient(90deg,#643232, #0b0b10, #200b0b,  #643232);
+    background-size: 400% 400%;
+  
+    animation: gradientMove 5s ease infinite;
+  }
+  
+  @keyframes gradientMove {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+.login_for_query {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.login-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    width: 25%;
+    backdrop-filter: blur(10px);
+
+    min-width: 320px; /* Чтобы на маленьких экранах не сжималось слишком сильно */
+    background-color: var(--login-background);
+    height: 70%;
+
+    border: 1px solid var(--border-primary);
+    padding: 20px;
+    border-radius: 10px;
+    gap: 30px;
+}
+
+.login-menu h1 {
+    color: var(--text-main);
+    padding-top: 50px;
+    margin: 0;
+}
+
+.login-menu form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 30px; /* Управляет расстоянием между всеми элементами формы */
+    padding-top: 70px;
+}
+
+/* Общие стили для инпутов и кнопки для идеальной симметрии */
+.login-query, 
+.login-button {
+    box-sizing: border-box; /* Критично: включает padding в общую высоту */
+    width: 80%;
+    height: 45px;
+    border-radius: 5px;
+    border: 1px solid var(--border-primary);
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.login-query {
+    padding: 0 15px;
+    background-color: transparent;
+    color: var(--text-main);
+    outline: none;
+}
+
+.login-query:focus {
+    border-color: var(--primary-500);
+}
+
+.login-button {
+    background-color: var(--primary-500);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+}
+
+.login-button:hover {
+    background-color: var(--primary-400);
+    transform: translateY(-1px);
+}
+
+.login-menu p {
+    color: var(--text-main);
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.login-menu a {
+    color: var(--primary-400);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-menu a:hover {
+    text-decoration: underline;
+}
