@@ -5,13 +5,16 @@ interface TodoProps extends TodoType {
     onToggleComplete: (id: string) => void;
 }
 
-export function Todo({ id, title, completed, description, onToggleComplete }: TodoProps) {
+export function Todo({ id, title, completed, description, color, onToggleComplete }: TodoProps) {
     const handleCheckboxChange = () => {
         onToggleComplete(id);
     };
 
     return (
-        <div className={`todo ${completed ? 'todo-completed' : ''}`}>
+        <div 
+            className={`todo ${completed ? 'todo-completed' : ''}`} 
+            style={{ backgroundColor: color }}
+        >
             <div className="todo-header">
                 <input
                     type="checkbox"

@@ -11,12 +11,26 @@ interface TodoModalProps {
 export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedColor, setSelectedColor] = useState('#4CAF50')
+  const colors = [
+    '#ff0000',  // Яркий красный
+    '#00ff00',  // Яркий зеленый
+    '#ffff00',  // Яркий желтый
+    '#ff00ff',  // Яркий розовый/маджента
+    '#dc143c',  // Crimson
+    '#ffa500',  // Яркий оранжевый
+    '#00FFFF',  // Яркий голубой/cyan
+    '#8A2BE2',  // Яркий фиолетовый
+    '#4B0082',  // Индиго
+    '#8B0000'   // Темно-красный
+  ];
 
   // Очищаем форму когда модальное окно закрывается
   useEffect(() => {
     if (!isOpen) {
       setTitle('');
       setDescription('');
+      setSelectedColor('#4CAF50')
     }
   }, [isOpen]);
 
@@ -39,7 +53,8 @@ export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
       id: `todo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Уникальный id
       title: title.trim(),
       description: description.trim(),
-      completed: false
+      completed: false,
+      color: selectedColor,
     };
 
     // Сохраняем и закрываем окно
@@ -81,6 +96,22 @@ export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
               placeholder="Введите описание задачи..."
               rows={4}
             />
+          </div>
+
+          <div className="form-group">
+            <label>Выберите цвет:</label>
+            <div className="color-palette">
+              {colors.map((color, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)}
+                  className={`color-button ${selectedColor === color ? 'selected' : ''}`}
+                >
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="modal-buttons">

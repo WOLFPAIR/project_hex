@@ -14,7 +14,7 @@
 
 /* Само модальное окно */
 .modal-content {
-  background-color: white;
+  background-color: #f5f5f5;
   border-radius: 8px;
   padding: 0;
   width: 90%;
@@ -22,6 +22,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   animation: modalAppear 0.3s ease-out;
 }
+
 
 @keyframes modalAppear {
   from {
@@ -107,6 +108,34 @@
 .form-group textarea {
   resize: vertical;
   min-height: 80px;
+}
+
+/* Палитра цветов */
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.color-button {
+  width: 40px;
+  height: 40px;
+  border: 2px solid #ddd;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.color-button:hover {
+  transform: scale(1.1);
+  border-color: #333;
+}
+
+.color-button.selected {
+  border-color: #000;
+  border-width: 3px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Кнопки */

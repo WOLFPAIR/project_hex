@@ -9,9 +9,10 @@ import { TodoModal } from '../../components/todo-modal/todo-modal.tsx';
 
 export default function Dashboard() {
   const [todos, setTodos] = useState<TodoType[]>([
-    { id: '1', title: 'Todo 1', completed: false, description: 'Description 1' }
+    { id: '1', title: 'Todo 1', completed: false, description: 'Description 1', color: '#4CAF50' }
   ]);
   
+
   // Состояние для управления видимостью модального окна
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -55,6 +56,7 @@ export default function Dashboard() {
                 title={todo.title} 
                 completed={todo.completed} 
                 description={todo.description}
+                color={todo.color}
                 onToggleComplete={handleToggleComplete}
               />
             ))}
