@@ -11,12 +11,14 @@ interface TodoModalProps {
 export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [reminderTime, setReminderTime] = useState('');
 
   // Очищаем форму когда модальное окно закрывается
   useEffect(() => {
     if (!isOpen) {
       setTitle('');
       setDescription('');
+      setReminderTime('');
     }
   }, [isOpen]);
 
@@ -34,12 +36,13 @@ export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
       return;
     }
 
-    // Создаем новую todo с уникальным id
+    // Создаем новую todo с уникальным id (id будет проигнорирован сервером, так как он генерируется БД)
     const newTodo: TodoType = {
-      id: `todo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Уникальный id
+      id: '', // ID не нужен для создания
       title: title.trim(),
       description: description.trim(),
-      completed: false
+      completed: false,
+      reminder_time: reminderTime || undefined
     };
 
     // Сохраняем и закрываем окно
@@ -80,6 +83,17 @@ export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Введите описание задачи..."
               rows={4}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="reminder">Напоминание (необязательно):</label>
+            <input
+              id="reminder"
+              type="datetime-local"
+              value={reminderTime}
+              onChange={(e) => setReminderTime(e.target.value)}
+              className="reminder-input"
             />
           </div>
 

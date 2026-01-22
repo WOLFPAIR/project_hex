@@ -3,10 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import './button.css';
 import { ReactNode } from 'react';
 
-export function SidebarButton({ icon, label, to }: { icon: ReactNode, label: string, to: string }) {
+export function SidebarButton({ icon, label, to, onClick }: { icon: ReactNode, label: string, to?: string, onClick?: () => void }) {
     const navigate = useNavigate();
+    
+    const handleClick = () => {
+        if (onClick) {
+            onClick();
+        } else if (to) {
+            navigate(to);
+        }
+    };
+
     return (
-        <button className="sidebar-button" onClick={() => navigate(to)}>
+        <button className="sidebar-button" onClick={handleClick}>
             <div className='sidebar-icon'>{icon}</div>
             <span>{label}</span>
         </button>

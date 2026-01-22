@@ -5,9 +5,16 @@ interface TodoProps extends TodoType {
     onToggleComplete: (id: string) => void;
 }
 
-export function Todo({ id, title, completed, description, onToggleComplete }: TodoProps) {
+export function Todo({ id, title, completed, description, reminder_time, onToggleComplete }: TodoProps) {
     const handleCheckboxChange = () => {
         onToggleComplete(id);
+    };
+
+    const formatReminder = (isoString?: string) => {
+        if (!isoString) return null;
+        return new Date(isoString).toLocaleString('ru-RU', {
+            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
     };
 
     return (
@@ -25,6 +32,11 @@ export function Todo({ id, title, completed, description, onToggleComplete }: To
                 </label>
             </div>
             <p className={completed ? 'todo-description-completed' : ''}>{description}</p>
+            {reminder_time && (
+                <div className="todo-reminder">
+                    ⏰ {formatReminder(reminder_time)}
+                </div>
+            )}
             <div className="todo-status">
                 <span className={`status-badge ${completed ? 'status-completed' : 'status-pending'}`}>
                     {completed ? '✓ Выполнено' : '○ В процессе'}

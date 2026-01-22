@@ -6,11 +6,12 @@ import { useState } from 'react';
 import type { TodoType } from '../../types/todo';
 import { Header } from '../../components/header/header.tsx';
 import { TodoModal } from '../../components/todo-modal/todo-modal.tsx';
+import { useGetTasksQuery, useCreateTaskMutation, useUpdateTaskMutation } from '../../services/tasksApi';
 
 export default function Dashboard() {
-  const [todos, setTodos] = useState<TodoType[]>([
-    { id: '1', title: 'Todo 1', completed: false, description: 'Description 1' }
-  ]);
+  const { data: todos = [], isLoading } = useGetTasksQuery();
+  const [createTask] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
   
   // Состояние для управления видимостью модального окна
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,17 +27,37 @@ export default function Dashboard() {
   };
 
   // Функция для сохранения новой todo
-  const handleSaveTodo = (newTodo: TodoType) => {
-    setTodos([...todos, newTodo]);
+  const handleSaveTodo = async (newTodo: TodoType) => {
+    try {
+        await createTask({
+            title: newTodo.title,
+            description: newTodo.description,
+            completed: newTodo.completed,
+            reminder_time: newTodo.reminder_time
+        }).unwrap();
+    } catch (error) {
+        console.error('Failed to create task:', error);
+    }
   };
 
   // Функция для изменения статуса задачи (завершена/не завершена)
-  const handleToggleComplete = (todoId: string) => {
-    setTodos(todos.map(todo => 
-      todo.id === todoId 
-        ? { ...todo, completed: !todo.completed } // Меняем статус на противоположный
-        : todo // Остальные задачи оставляем без изменений
-    ));
+  const handleToggleComplete = async (todoId: string) => {
+    const todo = todos.find(t => t.id.toString() === todoId.toString());
+    if (todo) {
+        try {
+            await updateTask({
+                id: todoId,
+                task: {
+                    title: todo.title,
+                    description: todo.description,
+                    completed: !todo.completed,
+                    reminder_time: todo.reminder_time
+                }
+            }).unwrap();
+        } catch (error) {
+            console.error('Failed to update task:', error);
+        }
+    }
   };
 
   return (
@@ -48,16 +69,21 @@ export default function Dashboard() {
         <main className="dashboard-content">
           <Outlet />
           <div className="todo-list">
-            {todos.map((todo) => (
-              <Todo 
-                key={todo.id} 
-                id={todo.id}
-                title={todo.title} 
-                completed={todo.completed} 
-                description={todo.description}
-                onToggleComplete={handleToggleComplete}
-              />
-            ))}
+            {isLoading ? (
+                <div>Loading tasks...</div>
+            ) : (
+                todos.map((todo) => (
+                <Todo 
+                    key={todo.id} 
+                    id={todo.id}
+                    title={todo.title} 
+                    completed={todo.completed} 
+                    description={todo.description}
+                    reminder_time={todo.reminder_time}
+                    onToggleComplete={handleToggleComplete}
+                />
+                ))
+            )}
             
           </div>
         </main>
