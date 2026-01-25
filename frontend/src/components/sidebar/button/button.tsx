@@ -1,7 +1,6 @@
-import type {IconType} from 'react-icons';
 import { useNavigate } from 'react-router-dom';
 import './button.css';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export function SidebarButton({ icon, label, to, onClick }: { icon: ReactNode, label: string, to?: string, onClick?: () => void }) {
     const navigate = useNavigate();
@@ -16,8 +15,8 @@ export function SidebarButton({ icon, label, to, onClick }: { icon: ReactNode, l
 
     return (
         <button className="sidebar-button" onClick={handleClick}>
-            <div className='sidebar-icon'>{icon}</div>
-            <span>{label}</span>
+            {icon}
+            <span className="sidebar-label">{label}</span>
         </button>
     );
 }

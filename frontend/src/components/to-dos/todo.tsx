@@ -3,9 +3,10 @@ import type { TodoType } from '../../types/todo';
 
 interface TodoProps extends TodoType {
     onToggleComplete: (id: string) => void;
+    animationDelay?: number;
 }
 
-export function Todo({ id, title, completed, description, reminder_time, onToggleComplete }: TodoProps) {
+export function Todo({ id, title, completed, description, reminder_time, onToggleComplete, animationDelay }: TodoProps) {
     const handleCheckboxChange = () => {
         onToggleComplete(id);
     };
@@ -18,7 +19,10 @@ export function Todo({ id, title, completed, description, reminder_time, onToggl
     };
 
     return (
-        <div className={`todo ${completed ? 'todo-completed' : ''}`}>
+        <div
+            className={`todo ${completed ? 'todo-completed' : ''}`}
+            style={animationDelay ? { animationDelay: `${animationDelay}ms` } : undefined}
+        >
             <div className="todo-header">
                 <input
                     type="checkbox"

@@ -42,6 +42,7 @@ export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
       title: title.trim(),
       description: description.trim(),
       completed: false,
+      remainded: false,
       reminder_time: reminderTime || undefined
     };
 

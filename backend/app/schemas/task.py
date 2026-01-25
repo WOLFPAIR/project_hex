@@ -6,6 +6,7 @@ class TaskBase(BaseModel):
     title: str
     description: Optional[str] = None
     completed: bool = False
+    remainded: bool = False
     reminder_time: Optional[datetime] = None
 
 class TaskCreate(TaskBase):
@@ -15,6 +16,7 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     completed: Optional[bool] = None
+    remainded: Optional[bool] = None
     reminder_time: Optional[datetime] = None
 
 class Task(TaskBase):

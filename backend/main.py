@@ -13,7 +13,7 @@ from app.db.config import get_database_config, redact_database_url
 from app.modules.base import Base
 from app.modules.task import Task
 from app.modules.user import User
-from app.schemas.task import TaskCreate, Task as TaskSchema
+from app.schemas.task import TaskCreate, Task as TaskSchema, TaskUpdate
 from app.schemas.user import UserCreate, User as UserSchema, Token
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.core.auth import get_current_user
@@ -150,6 +150,7 @@ async def create_task(
         title=task.title,
         description=task.description,
         completed=task.completed,
+        remainded=task.remainded,
         reminder_time=task.reminder_time,
         user_id=current_user.id
     )
@@ -167,6 +168,7 @@ async def create_task(
                     "title": db_task.title,
                     "description": db_task.description,
                     "completed": db_task.completed,
+                    "remainded": db_task.remainded,
                     "user_id": db_task.user_id,
                     "reminder_time": db_task.reminder_time.isoformat() if db_task.reminder_time else None,
                 }
@@ -209,7 +211,7 @@ async def read_tasks(
 @app.put("/tasks/{task_id}", response_model=TaskSchema)
 async def update_task(
     task_id: int,
-    task_update: TaskCreate, # Re-using TaskCreate for simplicity, or define TaskUpdate
+    task_update: TaskUpdate,
     db: AsyncSession = Depends(get_async_session),
     current_user: User = Depends(get_current_user)
 ):
@@ -221,10 +223,16 @@ async def update_task(
     if db_task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    db_task.title = task_update.title
-    db_task.description = task_update.description
-    db_task.completed = task_update.completed
-    db_task.reminder_time = task_update.reminder_time
+    if "title" in task_update.model_fields_set:
+        db_task.title = task_update.title
+    if "description" in task_update.model_fields_set:
+        db_task.description = task_update.description
+    if "completed" in task_update.model_fields_set:
+        db_task.completed = task_update.completed
+    if "remainded" in task_update.model_fields_set:
+        db_task.remainded = task_update.remainded
+    if "reminder_time" in task_update.model_fields_set:
+        db_task.reminder_time = task_update.reminder_time
     
     try:
         await db.commit()

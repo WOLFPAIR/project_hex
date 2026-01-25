@@ -15,6 +15,7 @@ class Task(BaseModel):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
     completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    remainded: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     reminder_time: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
