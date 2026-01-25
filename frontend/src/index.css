@@ -28,6 +28,7 @@
 
   /* Layout */
   --sidebar-width: 300px;
+  --sidebar-width-collapsed: 72px;
   --header-height: 64px;
 
   /* Transitions */

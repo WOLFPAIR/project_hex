@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "mirandi-backend"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.109.0"
+uvicorn = "^0.27.0"
+sqlalchemy = "^2.0.25"
+alembic = "^1.13.1"
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+# Pin bcrypt to avoid AttributeError: module 'bcrypt' has no attribute '__about__'
+bcrypt = "4.0.1"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+python-multipart = "^0.0.9"
+aiosqlite = "^0.19.0"
+pydantic = {extras = ["email"], version = "^2.6.0"}
+email-validator = "^2.1.0"
+asyncpg = "^0.31.0"
+psycopg2-binary = "^2.9.11"
+supabase = "^2.27.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

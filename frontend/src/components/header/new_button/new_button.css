@@ -1,17 +1,31 @@
 .new_baton {
-    background-color: rgb(31, 30, 30);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(139, 92, 246, 0.9));
     color: white;
-    border: none;
-    height: 50px;
-    width: 70px;
-    border-radius: 8px;
-    font-size: 20px;
-    padding: 10px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
     cursor: pointer;
-    transition: background-color 0.2s;
-
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 .new_baton:hover {
-    /* background-color: rgb(58, 57, 57); */
-    box-shadow: 0px 2px 10px rgb(255, 255, 255);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(59, 130, 246, 0.3);
+    filter: brightness(1.08);
+}
+
+.new_baton:active {
+    transform: translateY(0);
+}
+
+.new_baton:focus-visible {
+    outline: 2px solid rgba(59, 130, 246, 0.6);
+    outline-offset: 2px;
 }

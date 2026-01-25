@@ -6,14 +6,16 @@ import { useState } from 'react';
 import type { TodoType } from '../../types/todo';
 import { Header } from '../../components/header/header.tsx';
 import { TodoModal } from '../../components/todo-modal/todo-modal.tsx';
+import { useGetTasksQuery, useCreateTaskMutation, useUpdateTaskMutation } from '../../services/tasksApi';
 
 export default function Dashboard() {
-  const [todos, setTodos] = useState<TodoType[]>([
-    { id: '1', title: 'Todo 1', completed: false, description: 'Description 1' }
-  ]);
+  const { data: todos = [], isLoading } = useGetTasksQuery();
+  const [createTask] = useCreateTaskMutation();
+  const [updateTask] = useUpdateTaskMutation();
   
   // Состояние для управления видимостью модального окна
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   // Функция для открытия модального окна
   const handleOpenModal = () => {
@@ -26,40 +28,114 @@ export default function Dashboard() {
   };
 
   // Функция для сохранения новой todo
-  const handleSaveTodo = (newTodo: TodoType) => {
-    setTodos([...todos, newTodo]);
+  const handleSaveTodo = async (newTodo: TodoType) => {
+    try {
+        await createTask({
+            title: newTodo.title,
+            description: newTodo.description,
+            completed: newTodo.completed,
+            reminder_time: newTodo.reminder_time
+        }).unwrap();
+    } catch (error) {
+        console.error('Failed to create task:', error);
+    }
   };
 
   // Функция для изменения статуса задачи (завершена/не завершена)
-  const handleToggleComplete = (todoId: string) => {
-    setTodos(todos.map(todo => 
-      todo.id === todoId 
-        ? { ...todo, completed: !todo.completed } // Меняем статус на противоположный
-        : todo // Остальные задачи оставляем без изменений
-    ));
+  const handleToggleComplete = async (todoId: string) => {
+    const todo = todos.find(t => t.id.toString() === todoId.toString());
+    if (todo) {
+        try {
+            await updateTask({
+                id: todoId,
+                task: {
+                    title: todo.title,
+                    description: todo.description,
+                    completed: !todo.completed,
+                    reminder_time: todo.reminder_time
+                }
+            }).unwrap();
+        } catch (error) {
+            console.error('Failed to update task:', error);
+        }
+    }
   };
+
+  const pendingTodos = todos.filter(todo => !todo.completed);
+  const completedTodos = todos.filter(todo => todo.completed);
 
   return (
     <div className="dashboard-layout">
-      <Sidebar />
-      <div className="dashboard-main">
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggle={() => setIsSidebarCollapsed((prev) => !prev)}
+      />
+      <div className={`dashboard-main${isSidebarCollapsed ? ' dashboard-main--collapsed' : ''}`}>
         <Header title="Dashboard" onAddTodo={handleOpenModal} />
         
         <main className="dashboard-content">
           <Outlet />
-          <div className="todo-list">
-            {todos.map((todo) => (
-              <Todo 
-                key={todo.id} 
-                id={todo.id}
-                title={todo.title} 
-                completed={todo.completed} 
-                description={todo.description}
-                onToggleComplete={handleToggleComplete}
-              />
-            ))}
-            
-          </div>
+          {isLoading ? (
+            <div className="todo-loading">Загружаем задачи...</div>
+          ) : (
+            <div className="todo-board">
+              <section className="todo-column">
+                <div className="todo-column-header">
+                  <div className="todo-column-title">
+                    <h2>В процессе</h2>
+                    <span className="todo-count">{pendingTodos.length}</span>
+                  </div>
+                  <p>Фокус на актуальные задачи</p>
+                </div>
+                <div className="todo-list">
+                  {pendingTodos.length === 0 ? (
+                    <div className="todo-empty">Задач пока нет</div>
+                  ) : (
+                    pendingTodos.map((todo, index) => (
+                      <Todo 
+                        key={todo.id} 
+                        id={todo.id}
+                        title={todo.title} 
+                        completed={todo.completed} 
+                        description={todo.description}
+                        reminder_time={todo.reminder_time}
+                        onToggleComplete={handleToggleComplete}
+                        animationDelay={index * 45}
+                      />
+                    ))
+                  )}
+                </div>
+              </section>
+
+              <section className="todo-column todo-column-completed">
+                <div className="todo-column-header">
+                  <div className="todo-column-title">
+                    <h2>Готово</h2>
+                    <span className="todo-count">{completedTodos.length}</span>
+                  </div>
+                  <p>Выполненные задачи</p>
+                </div>
+                <div className="todo-list">
+                  {completedTodos.length === 0 ? (
+                    <div className="todo-empty">Пока нет завершенных</div>
+                  ) : (
+                    completedTodos.map((todo, index) => (
+                      <Todo 
+                        key={todo.id} 
+                        id={todo.id}
+                        title={todo.title} 
+                        completed={todo.completed} 
+                        description={todo.description}
+                        reminder_time={todo.reminder_time}
+                        onToggleComplete={handleToggleComplete}
+                        animationDelay={index * 45}
+                      />
+                    ))
+                  )}
+                </div>
+              </section>
+            </div>
+          )}
         </main>
       </div>
       
