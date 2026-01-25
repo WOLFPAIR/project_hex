@@ -1,0 +1,426 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        752,
+        784
+      ],
+      "id": "606a6779-02d4-4b0f-8c63-c51fc734b03e",
+      "name": "Get Users row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "7itsmVI1j0KfBmuM",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        512
+      ],
+      "id": "711ea611-b4e2-439c-9834-31905c0d9f04",
+      "name": "Telegram Trigger",
+      "webhookId": "38eef668-257b-4f29-80be-7f6a2125f2f2",
+      "credentials": {
+        "telegramApi": {
+          "id": "w7ggGFdP0vuy68MQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f780750c-47f7-4f23-abeb-5508039bc0d9",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/start",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1248,
+        512
+      ],
+      "id": "a8318e5b-c320-42e5-8aaf-bc85aaf7bb47",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "users",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.message.text.split(' ')[1] }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "telegram_id",
+              "fieldValue": "={{$json.message.from.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        432
+      ],
+      "id": "cddc6d27-1710-4efe-b8a7-151bf9e7d660",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LyQDZxgPyZXh1wxi",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('If').item.json.telegram_id }}",
+        "text": "={{ $json.description }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        752
+      ],
+      "id": "293e1bdc-f5f9-406d-b398-fe8c7c0ee179",
+      "name": "Send a text message",
+      "webhookId": "8ac6be89-6002-4270-95a2-a98008e52b63",
+      "credentials": {
+        "telegramApi": {
+          "id": "w7ggGFdP0vuy68MQ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f6e74ffd-2246-4626-a4af-a48fac1f104f",
+              "leftValue": "={{ $json.telegram_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        784
+      ],
+      "id": "17cf01cd-575c-4b1c-ad90-c88a9c81392c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "tasks",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "reminder_time",
+              "condition": "lte",
+              "keyValue": "={{$now.setZone(\"Asia/Almaty\") }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        768
+      ],
+      "id": "4a80a7cf-3548-4b71-85a9-92cb5c8f88a5",
+      "name": "Get tasks Row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LyQDZxgPyZXh1wxi",
+          "name": "Supabase account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4ec50892-3377-4d49-90a8-4b1ea8d10fff",
+              "leftValue": "={{ $json.user_id == $('If').item.json.id  }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "d02a5a12-27b4-4aa0-97b0-92d75cbb8d50",
+              "leftValue": "={{ $json.completed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e93f9b70-204b-44e2-8fd6-43258ec375c2",
+              "leftValue": "={{ $json.reminder_time }}",
+              "rightValue": "={{$now.plus({ hours: 5 })  }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "beforeOrEquals"
+              }
+            },
+            {
+              "id": "41c47c6c-aa75-4da2-a2f3-60bcc309463b",
+              "leftValue": "={{ $json.remainded }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1440,
+        768
+      ],
+      "id": "ffefc938-d656-4e30-804d-552aa073d0d3",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        512,
+        944
+      ],
+      "id": "a138c55c-e59d-4791-814f-fdf0f8694cbf",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "tasks",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "completed",
+              "condition": "is",
+              "keyValue": "={{ false }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "remainded",
+              "fieldValue": "={{ true }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        752
+      ],
+      "id": "13f2b754-4039-4ccd-9d6d-bc78dc1880dd",
+      "name": "Update a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LyQDZxgPyZXh1wxi",
+          "name": "Supabase account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Users row": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get tasks Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get tasks Row": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Users row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "39d7bafd-73a8-418f-8f96-2fe288ec92fd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e89a26627b3fd07f5264136f19c4c76a1816876c028dca94395b33ef634706d"
+  },
+  "id": "koLEZD4S_ISpIHpDOj4Cv",
+  "tags": []
+}
