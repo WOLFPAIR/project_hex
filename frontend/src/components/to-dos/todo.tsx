@@ -1,14 +1,24 @@
 import './todo.css';
 import type { TodoType } from '../../types/todo';
+import { FaTrash } from 'react-icons/fa';
 
-interface TodoProps extends TodoType {
+interface TodoProps extends Omit<TodoType, 'id'> {
+    id: string | number;
     onToggleComplete: (id: string) => void;
+    onDelete?: (id: string) => void;
     animationDelay?: number;
 }
 
-export function Todo({ id, title, completed, description, reminder_time, onToggleComplete, animationDelay }: TodoProps) {
+export function Todo({ id, title, completed, remainded, description, reminder_time, onToggleComplete, onDelete, animationDelay }: TodoProps) {
     const handleCheckboxChange = () => {
-        onToggleComplete(id);
+        onToggleComplete(id.toString());
+    };
+
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (onDelete) {
+            onDelete(id.toString());
+        }
     };
 
     const formatReminder = (isoString?: string) => {
@@ -34,11 +44,20 @@ export function Todo({ id, title, completed, description, reminder_time, onToggl
                 <label htmlFor={`todo-${id}`} className="todo-checkbox-label">
                     <h1 className={completed ? 'todo-title-completed' : ''}>{title}</h1>
                 </label>
+                <button 
+                    onClick={handleDeleteClick}
+                    className="todo-delete-btn"
+                    title="Удалить задачу"
+                    aria-label="Удалить задачу"
+                >
+                    <FaTrash />
+                </button>
             </div>
             <p className={completed ? 'todo-description-completed' : ''}>{description}</p>
             {reminder_time && (
-                <div className="todo-reminder">
-                    ⏰ {formatReminder(reminder_time)}
+                <div className={`todo-reminder ${remainded ? 'todo-reminder--sent' : ''}`}>
+                    {remainded ? '✅' : '⏰'} {formatReminder(reminder_time)}
+                    {remainded && <span className="todo-reminder-label"> · напомнено</span>}
                 </div>
             )}
             <div className="todo-status">

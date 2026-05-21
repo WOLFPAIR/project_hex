@@ -5,6 +5,7 @@
     height: 100vh;
     padding: 24px 16px;
     
+    
     background: linear-gradient(90deg,#643232, #0b0b10, #200b0b,  #643232);
     background-size: 400% 400%;
   
@@ -31,6 +32,8 @@
     align-items: center;
     justify-content: start;
     width: 25%;
+    max-width: 500px;
+    max-height: 600px;
     backdrop-filter: blur(10px);
 
     min-width: 320px; /* Чтобы на маленьких экранах не сжималось слишком сильно */

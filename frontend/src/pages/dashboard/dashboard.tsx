@@ -6,12 +6,15 @@ import { useState } from 'react';
 import type { TodoType } from '../../types/todo';
 import { Header } from '../../components/header/header.tsx';
 import { TodoModal } from '../../components/todo-modal/todo-modal.tsx';
-import { useGetTasksQuery, useCreateTaskMutation, useUpdateTaskMutation } from '../../services/tasksApi';
+import { useGetTasksQuery, useCreateTaskMutation, useUpdateTaskMutation, useDeleteTaskMutation } from '../../services/tasksApi';
 
 export default function Dashboard() {
-  const { data: todos = [], isLoading } = useGetTasksQuery();
+  const { data: todos = [], isLoading, isFetching } = useGetTasksQuery(undefined, {
+    pollingInterval: 60000, // refresh every 60s to pick up reminder status changes
+  });
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
+  const [deleteTask] = useDeleteTaskMutation();
   
   // Состояние для управления видимостью модального окна
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,6 +64,15 @@ export default function Dashboard() {
     }
   };
 
+  // Функция для удаления задачи
+  const handleDeleteTodo = async (todoId: string) => {
+    try {
+        await deleteTask(todoId).unwrap();
+    } catch (error) {
+        console.error('Failed to delete task:', error);
+    }
+  };
+
   const pendingTodos = todos.filter(todo => !todo.completed);
   const completedTodos = todos.filter(todo => todo.completed);
 
@@ -75,6 +87,9 @@ export default function Dashboard() {
         
         <main className="dashboard-content">
           <Outlet />
+          {isFetching && !isLoading && (
+            <div className="polling-indicator">🔄 Обновление...</div>
+          )}
           {isLoading ? (
             <div className="todo-loading">Загружаем задачи...</div>
           ) : (
@@ -100,6 +115,7 @@ export default function Dashboard() {
                         description={todo.description}
                         reminder_time={todo.reminder_time}
                         onToggleComplete={handleToggleComplete}
+                        onDelete={handleDeleteTodo}
                         animationDelay={index * 45}
                       />
                     ))
@@ -128,6 +144,7 @@ export default function Dashboard() {
                         description={todo.description}
                         reminder_time={todo.reminder_time}
                         onToggleComplete={handleToggleComplete}
+                        onDelete={handleDeleteTodo}
                         animationDelay={index * 45}
                       />
                     ))

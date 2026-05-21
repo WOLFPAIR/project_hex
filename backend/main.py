@@ -1,5 +1,9 @@
+import asyncio
 import logging
 import os
+
+from dotenv import load_dotenv
+load_dotenv()
 
 from fastapi import FastAPI, Depends, HTTPException, Response, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,9 +23,14 @@ from app.core.security import get_password_hash, verify_password, create_access_
 from app.core.auth import get_current_user
 from app.routes.auth import router as auth_router
 from app.core.supabase import supabase
+from app.telegram_bot.bot import build_application
+from app.telegram_bot.scheduler import run_reminder_scheduler
 
 app = FastAPI(title="Mirandi Todo API")
 logger = logging.getLogger("uvicorn.error")
+
+_tg_app = None
+_scheduler_task = None
 
 # Configure CORS
 origins = [
@@ -52,6 +61,8 @@ app.include_router(auth_router)
 
 @app.on_event("startup")
 async def startup():
+    global _tg_app, _scheduler_task
+
     database_config = get_database_config()
     redacted_url = redact_database_url(database_config.url)
     try:
@@ -81,6 +92,43 @@ async def startup():
         logger.exception("Database startup failed using %s", redacted_url)
         raise
 
+    token = os.getenv("TELEGRAM_TOKEN")
+    if token:
+        try:
+            _tg_app = build_application(token)
+            await _tg_app.initialize()
+            await _tg_app.start()
+            await _tg_app.updater.start_polling(drop_pending_updates=True)
+            _scheduler_task = asyncio.create_task(
+                run_reminder_scheduler(_tg_app.bot)
+            )
+            logger.info("Telegram bot started in polling mode.")
+        except Exception:
+            logger.exception("Failed to start Telegram bot.")
+    else:
+        logger.warning("TELEGRAM_TOKEN not set; Telegram bot disabled.")
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    global _tg_app, _scheduler_task
+
+    if _scheduler_task:
+        _scheduler_task.cancel()
+        try:
+            await _scheduler_task
+        except asyncio.CancelledError:
+            pass
+
+    if _tg_app:
+        try:
+            await _tg_app.updater.stop()
+            await _tg_app.stop()
+            await _tg_app.shutdown()
+            logger.info("Telegram bot stopped.")
+        except Exception:
+            logger.exception("Error stopping Telegram bot.")
+
 @app.get("/")
 async def root():
     return {"message": "Mirandi Todo API is running"}
@@ -102,8 +150,19 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_async_sessio
         await db.refresh(db_user)
     except Exception as e:
         await db.rollback()
-        logger.exception("Failed to create task for user_id=%s", current_user.id)
+        logger.exception("Failed to create user email=%s", user.email)
         raise HTTPException(status_code=500, detail=str(e))
+
+    if supabase:
+        try:
+            supabase.table("users").insert({
+                "id": db_user.id,
+                "username": db_user.username,
+                "email": db_user.email,
+            }).execute()
+        except Exception:
+            logger.exception("Failed to sync user id=%s to Supabase", db_user.id)
+
     return db_user
 
 @app.post("/login", response_model=Token)
@@ -165,6 +224,7 @@ async def create_task(
                 logger.info("Syncing task id=%s to Supabase API", db_task.id)
                 # We need to serialize the datetime objects to string
                 task_data = {
+                    "id": db_task.id,
                     "title": db_task.title,
                     "description": db_task.description,
                     "completed": db_task.completed,
@@ -242,3 +302,40 @@ async def update_task(
         raise HTTPException(status_code=500, detail=str(e))
         
     return db_task
+
+@app.delete("/tasks/{task_id}", response_model=TaskSchema)
+async def delete_task(
+    task_id: int,
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(
+        select(Task).where(Task.id == task_id, Task.user_id == current_user.id)
+    )
+    db_task = result.scalar_one_or_none()
+    
+    if db_task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+        
+    try:
+        await db.delete(db_task)
+        await db.commit()
+        
+        if supabase:
+            try:
+                result = supabase.table(SUPABASE_TABLE_NAME).delete().eq("id", task_id).execute()
+                if getattr(result, "error", None):
+                    raise RuntimeError(result.error)
+            except Exception as e:
+                logger.exception(
+                    "Failed to delete task id=%s from Supabase table '%s': %s",
+                    task_id,
+                    SUPABASE_TABLE_NAME,
+                    e,
+                )
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+        
+    return db_task
+
