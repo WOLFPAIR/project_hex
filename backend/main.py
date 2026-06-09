@@ -17,7 +17,7 @@ from app.db.config import get_database_config, redact_database_url
 from app.modules.base import Base
 from app.modules.task import Task
 from app.modules.user import User
-from app.schemas.task import TaskCreate, Task as TaskSchema, TaskUpdate
+from app.schemas.task import TaskCreate, Task as TaskSchema, TaskUpdate, DeleteTasksRequest
 from app.schemas.user import UserCreate, User as UserSchema, Token
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.core.auth import get_current_user
@@ -37,6 +37,9 @@ origins = [
     "http://localhost:5173",  # Vite default
     "http://localhost:5173/login",
     "http://localhost:5173/register",
+    "http://localhost:5174",  # Vite fallback
+    "http://localhost:5174/login",
+    "http://localhost:5174/register",
     "http://localhost:3000",  # React default
 ]
 
@@ -134,7 +137,11 @@ async def root():
     return {"message": "Mirandi Todo API is running"}
 
 @app.post("/register", response_model=UserSchema)
-async def register(user: UserCreate, db: AsyncSession = Depends(get_async_session)):
+async def register(
+    response: Response,
+    user: UserCreate, 
+    db: AsyncSession = Depends(get_async_session)
+):
     result = await db.execute(select(User).where(User.email == user.email))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -162,6 +169,18 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_async_sessio
             }).execute()
         except Exception:
             logger.exception("Failed to sync user id=%s to Supabase", db_user.id)
+
+    # Automatically log in the user by setting the access token cookie
+    access_token = create_access_token(subject=db_user.email)
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+        max_age=60 * 60 * 24 * 7,
+        path="/",
+    )
 
     return db_user
 
@@ -193,6 +212,17 @@ async def login(
         path="/",
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+@app.post("/logout")
+async def logout(response: Response):
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        httponly=True,
+        samesite="lax",
+        secure=False,
+    )
+    return {"message": "Logged out successfully"}
 
 @app.get("/users/me", response_model=UserSchema)
 async def read_users_me(current_user: User = Depends(get_current_user)):
@@ -338,4 +368,62 @@ async def delete_task(
         raise HTTPException(status_code=500, detail=str(e))
         
     return db_task
+
+@app.post("/tasks/delete", response_model=List[int])
+async def delete_tasks_post(
+    payload: DeleteTasksRequest,
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user)
+):
+    return await handle_bulk_delete(payload.task_ids, db, current_user)
+
+@app.delete("/tasks", response_model=List[int])
+async def delete_tasks_delete(
+    payload: DeleteTasksRequest,
+    db: AsyncSession = Depends(get_async_session),
+    current_user: User = Depends(get_current_user)
+):
+    return await handle_bulk_delete(payload.task_ids, db, current_user)
+
+async def handle_bulk_delete(
+    task_ids: List[int],
+    db: AsyncSession,
+    current_user: User
+) -> List[int]:
+    if not task_ids:
+        return []
+        
+    result = await db.execute(
+        select(Task).where(Task.id.in_(task_ids), Task.user_id == current_user.id)
+    )
+    db_tasks = result.scalars().all()
+    
+    if not db_tasks:
+        return []
+        
+    actual_deleted_ids = [t.id for t in db_tasks]
+    
+    try:
+        for db_task in db_tasks:
+            await db.delete(db_task)
+        await db.commit()
+        
+        if supabase:
+            try:
+                result = supabase.table(SUPABASE_TABLE_NAME).delete().in_("id", actual_deleted_ids).execute()
+                if getattr(result, "error", None):
+                    raise RuntimeError(result.error)
+            except Exception as e:
+                logger.exception(
+                    "Failed to delete tasks %s from Supabase table '%s': %s",
+                    actual_deleted_ids,
+                    SUPABASE_TABLE_NAME,
+                    e,
+                )
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+        
+    return actual_deleted_ids
+
 
