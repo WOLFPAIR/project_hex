@@ -36,6 +36,14 @@ export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
       return;
     }
 
+    let formattedReminderTime: string | undefined = undefined;
+    if (reminderTime) {
+      const localDate = new Date(reminderTime);
+      if (!isNaN(localDate.getTime())) {
+        formattedReminderTime = localDate.toISOString();
+      }
+    }
+
     // Создаем новую todo с уникальным id (id будет проигнорирован сервером, так как он генерируется БД)
     const newTodo: TodoType = {
       id: '', // ID не нужен для создания
@@ -43,7 +51,7 @@ export function TodoModal({ isOpen, onClose, onSave }: TodoModalProps) {
       description: description.trim(),
       completed: false,
       remainded: false,
-      reminder_time: reminderTime || undefined
+      reminder_time: formattedReminderTime
     };
 
     // Сохраняем и закрываем окно
