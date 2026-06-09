@@ -1,7 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { tasksApi } from './tasksApi';
 
 export const authApi = createApi({
   reducerPath: 'authApi',
+  tagTypes: ['User'],
   baseQuery: fetchBaseQuery({
     baseUrl: 'http://localhost:8000',
     credentials: 'include',
@@ -13,6 +15,15 @@ export const authApi = createApi({
         method: 'POST',
         body: userData,
       }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(tasksApi.util.resetApiState());
+        } catch (err) {
+          // Ignore errors
+        }
+      },
     }),
     login: builder.mutation({
       query: (credentials) => {
@@ -27,14 +38,39 @@ export const authApi = createApi({
           body: formData,
         };
       },
+      invalidatesTags: ['User'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(tasksApi.util.resetApiState());
+        } catch (err) {
+          // Ignore errors
+        }
+      },
     }),
     getMe: builder.query({
       query: () => ({
         url: '/auth/me',
         method: 'GET',
       }),
+      providesTags: ['User'],
+    }),
+    logout: builder.mutation<void, void>({
+      query: () => ({
+        url: '/logout',
+        method: 'POST',
+      }),
+      invalidatesTags: ['User'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          dispatch(tasksApi.util.resetApiState());
+        } catch (err) {
+          // Ignore errors
+        }
+      },
     }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation, useGetMeQuery } = authApi;
+export const { useRegisterMutation, useLoginMutation, useGetMeQuery, useLogoutMutation } = authApi;

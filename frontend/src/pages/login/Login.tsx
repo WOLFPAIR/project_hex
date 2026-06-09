@@ -46,6 +46,7 @@ export default function Login() {
                         </button>
                         {error && <p style={{ color: 'red' }}>Login failed</p>}
                         <p>Don't have an account? <a href="/register">Register</a></p>
+                        <p style={{ marginTop: '10px' }}><a href="/">← Back to Landing</a></p>
                     </form>
                 </div>
             </div>

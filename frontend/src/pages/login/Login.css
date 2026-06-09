@@ -33,22 +33,21 @@
     justify-content: start;
     width: 25%;
     max-width: 500px;
-    max-height: 600px;
     backdrop-filter: blur(10px);
 
     min-width: 320px; /* Чтобы на маленьких экранах не сжималось слишком сильно */
     background-color: var(--login-background);
-    height: 70%;
+    height: auto;
 
     border: 1px solid var(--border-primary);
-    padding: 20px;
+    padding: 40px 20px;
     border-radius: 10px;
     gap: 30px;
 }
 
 .login-menu h1 {
     color: var(--text-main);
-    padding-top: 50px;
+    padding-top: 10px;
     margin: 0;
 }
 
@@ -58,7 +57,7 @@
     align-items: center;
     width: 100%;
     gap: 30px; /* Управляет расстоянием между всеми элементами формы */
-    padding-top: 70px;
+    padding-top: 20px;
 }
 
 /* Общие стили для инпутов и кнопки для идеальной симметрии */

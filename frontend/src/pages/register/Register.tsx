@@ -14,8 +14,8 @@ export default function Register() {
         e.preventDefault();
         try {
             await register({ username, email, password }).unwrap();
-            alert('Registration successful! Please login.');
-            navigate('/');
+            // Automatically redirect to dashboard because backend sets auth cookie on register
+            navigate('/dashboard');
         } catch (err) {
             console.error('Failed to register:', err);
         }
@@ -54,7 +54,8 @@ export default function Register() {
                         {isLoading ? 'Registering...' : 'Register'}
                     </button>
                     {error && <p style={{ color: 'red' }}>Error: {'data' in error ? JSON.stringify(error.data) : 'Something went wrong'}</p>}
-                    <p>Already have an account? <a href="/">Login</a></p>
+                    <p>Already have an account? <a href="/login">Login</a></p>
+                    <p style={{ marginTop: '10px' }}><a href="/">← Back to Landing</a></p>
                 </form>
             </div>
         </div>

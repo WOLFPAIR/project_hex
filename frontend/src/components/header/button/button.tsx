@@ -1,6 +1,6 @@
 import './button.css';
 import side_bar_icon from '../../../assets/sidebar-left-svgrepo-com.svg'
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export function Button({ children }: { children?: ReactNode }) {
   return (

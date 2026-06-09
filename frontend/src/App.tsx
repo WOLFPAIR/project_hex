@@ -10,7 +10,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/sidebar" element={<Sidebar />} />
+        <Route path="/sidebar" element={<Sidebar isCollapsed={false} onToggle={() => {}} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />

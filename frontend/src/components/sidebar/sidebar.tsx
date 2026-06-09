@@ -1,9 +1,10 @@
 import './sidebar.css';
-import { FaAngleLeft, FaBars, FaHome, FaTelegram } from 'react-icons/fa';
+import { FaAngleLeft, FaBars, FaHome, FaTelegram, FaSignOutAlt } from 'react-icons/fa';
 import { SidebarButton } from './button/button.tsx';
 import { UserIcon } from './UserIcon/UserIcon.tsx';
 import { Logo } from '../logo/Logo.tsx';
-import { useGetMeQuery } from '../../services/authApi';
+import { useGetMeQuery, useLogoutMutation } from '../../services/authApi';
+import { useNavigate } from 'react-router-dom';
 
 export default function Sidebar({
     isCollapsed,
@@ -13,14 +14,26 @@ export default function Sidebar({
     onToggle: () => void;
 }) {
     const { data: me } = useGetMeQuery(undefined);
+    const [logout] = useLogoutMutation();
+    const navigate = useNavigate();
+
     const handleTelegramConnect = () => {
         if (!me?.id) {
             alert('Сначала нужно войти в аккаунт.');
             return;
         }
 
-        const url = `https://t.me/Todremindersbot?start=${me.id}`;
+        const url = `https://t.me/Emberdobot?start=${me.id}`;
         window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
+    const handleLogout = async () => {
+        try {
+            await logout().unwrap();
+            navigate('/login');
+        } catch (err) {
+            console.error('Failed to logout:', err);
+        }
     };
 
     return (
@@ -50,7 +63,19 @@ export default function Sidebar({
                 </div>
 
                 <div className="sidebar-section sidebar-footer">
-                    <UserIcon name={me?.username ?? 'User'} />
+                    <div className="sidebar-footer-user">
+                        <UserIcon name={me?.username ?? 'User'} />
+                    </div>
+                    {!isCollapsed && (
+                        <button 
+                            className="sidebar-logout-btn" 
+                            onClick={handleLogout}
+                            title="Logout"
+                            aria-label="Logout"
+                        >
+                            <FaSignOutAlt />
+                        </button>
+                    )}
                 </div>
             </div>
         </div>

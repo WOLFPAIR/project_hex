@@ -6,16 +6,21 @@ import { useState } from 'react';
 import type { TodoType } from '../../types/todo';
 import { Header } from '../../components/header/header.tsx';
 import { TodoModal } from '../../components/todo-modal/todo-modal.tsx';
-import { useGetTasksQuery, useCreateTaskMutation, useUpdateTaskMutation, useDeleteTaskMutation } from '../../services/tasksApi';
+import { 
+  useGetTasksQuery, 
+  useCreateTaskMutation, 
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
+  useDeleteTasksMutation
+} from '../../services/tasksApi';
 
 export default function Dashboard() {
-  const { data: todos = [], isLoading, isFetching } = useGetTasksQuery(undefined, {
-    pollingInterval: 60000, // refresh every 60s to pick up reminder status changes
-  });
+
   const [createTask] = useCreateTaskMutation();
   const [updateTask] = useUpdateTaskMutation();
   const [deleteTask] = useDeleteTaskMutation();
-  
+  const [deleteTasks] = useDeleteTasksMutation();
+
   // Состояние для управления видимостью модального окна
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -33,43 +38,61 @@ export default function Dashboard() {
   // Функция для сохранения новой todo
   const handleSaveTodo = async (newTodo: TodoType) => {
     try {
-        await createTask({
-            title: newTodo.title,
-            description: newTodo.description,
-            completed: newTodo.completed,
-            reminder_time: newTodo.reminder_time
-        }).unwrap();
+      await createTask({
+        title: newTodo.title,
+        description: newTodo.description,
+        completed: newTodo.completed,
+        reminder_time: newTodo.reminder_time
+      }).unwrap();
     } catch (error) {
-        console.error('Failed to create task:', error);
+      console.error('Failed to create task:', error);
     }
   };
+
+  const { data: todos = [], isLoading, isFetching } = useGetTasksQuery(undefined, {
+    pollingInterval: 60000, // refresh every 60s to pick up reminder status changes
+  });
 
   // Функция для изменения статуса задачи (завершена/не завершена)
   const handleToggleComplete = async (todoId: string) => {
     const todo = todos.find(t => t.id.toString() === todoId.toString());
     if (todo) {
-        try {
-            await updateTask({
-                id: todoId,
-                task: {
-                    title: todo.title,
-                    description: todo.description,
-                    completed: !todo.completed,
-                    reminder_time: todo.reminder_time
-                }
-            }).unwrap();
-        } catch (error) {
-            console.error('Failed to update task:', error);
-        }
+      try {
+        await updateTask({
+          id: todoId,
+          task: {
+            title: todo.title,
+            description: todo.description,
+            completed: !todo.completed,
+            reminder_time: todo.reminder_time
+          }
+        }).unwrap();
+      } catch (error) {
+        console.error('Failed to update task:', error);
+      }
     }
   };
 
-  // Функция для удаления задачи
-  const handleDeleteTodo = async (todoId: string) => {
+  // Функция для удаления конкретной задачи
+  const handleDeleteTask = async (todoId: string) => {
     try {
-        await deleteTask(todoId).unwrap();
+      await deleteTask(todoId).unwrap();
     } catch (error) {
-        console.error('Failed to delete task:', error);
+      console.error('Failed to delete task:', error);
+    }
+  };
+
+  // Функция для удаления всех выполненных задач
+  const handleClearCompleted = async () => {
+    const completedIds = completedTodos.map(todo => Number(todo.id));
+    if (completedIds.length === 0) return;
+    
+    if (window.confirm(`Вы уверены, что хотите удалить все выполненные задачи (${completedIds.length})?`)) {
+      try {
+        await deleteTasks(completedIds).unwrap();
+      } catch (error) {
+        console.error('Failed to delete completed tasks:', error);
+      }
     }
   };
 
@@ -84,7 +107,7 @@ export default function Dashboard() {
       />
       <div className={`dashboard-main${isSidebarCollapsed ? ' dashboard-main--collapsed' : ''}`}>
         <Header title="Dashboard" onAddTodo={handleOpenModal} />
-        
+
         <main className="dashboard-content">
           <Outlet />
           {isFetching && !isLoading && (
@@ -107,15 +130,16 @@ export default function Dashboard() {
                     <div className="todo-empty">Задач пока нет</div>
                   ) : (
                     pendingTodos.map((todo, index) => (
-                      <Todo 
-                        key={todo.id} 
+                      <Todo
+                        key={todo.id}
                         id={todo.id}
-                        title={todo.title} 
-                        completed={todo.completed} 
+                        title={todo.title}
+                        completed={todo.completed}
+                        remainded={todo.remainded}
                         description={todo.description}
                         reminder_time={todo.reminder_time}
                         onToggleComplete={handleToggleComplete}
-                        onDelete={handleDeleteTodo}
+                        onDelete={handleDeleteTask}
                         animationDelay={index * 45}
                       />
                     ))
@@ -125,9 +149,20 @@ export default function Dashboard() {
 
               <section className="todo-column todo-column-completed">
                 <div className="todo-column-header">
-                  <div className="todo-column-title">
-                    <h2>Готово</h2>
-                    <span className="todo-count">{completedTodos.length}</span>
+                  <div className="todo-column-header-top">
+                    <div className="todo-column-title">
+                      <h2>Готово</h2>
+                      <span className="todo-count">{completedTodos.length}</span>
+                    </div>
+                    {completedTodos.length > 0 && (
+                      <button 
+                        onClick={handleClearCompleted} 
+                        className="clear-completed-btn"
+                        title="Удалить все выполненные задачи"
+                      >
+                        Очистить все
+                      </button>
+                    )}
                   </div>
                   <p>Выполненные задачи</p>
                 </div>
@@ -136,15 +171,16 @@ export default function Dashboard() {
                     <div className="todo-empty">Пока нет завершенных</div>
                   ) : (
                     completedTodos.map((todo, index) => (
-                      <Todo 
-                        key={todo.id} 
+                      <Todo
+                        key={todo.id}
                         id={todo.id}
-                        title={todo.title} 
-                        completed={todo.completed} 
+                        title={todo.title}
+                        completed={todo.completed}
+                        remainded={todo.remainded}
                         description={todo.description}
                         reminder_time={todo.reminder_time}
                         onToggleComplete={handleToggleComplete}
-                        onDelete={handleDeleteTodo}
+                        onDelete={handleDeleteTask}
                         animationDelay={index * 45}
                       />
                     ))
@@ -155,9 +191,9 @@ export default function Dashboard() {
           )}
         </main>
       </div>
-      
+
       {/* Модальное окно для создания новой задачи */}
-      <TodoModal 
+      <TodoModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSave={handleSaveTodo}

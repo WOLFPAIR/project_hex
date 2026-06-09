@@ -135,6 +135,35 @@
   text-align: center;
 }
 
+.todo-column-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clear-completed-btn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-completed-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}
+
+.clear-completed-btn:active {
+  transform: scale(0.95);
+}
+
+
 @media (max-width: 900px) {
   .dashboard-content {
     padding: 16px;
